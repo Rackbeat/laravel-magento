@@ -99,9 +99,8 @@ class Builder
     {
         $page = 1;
 
-        $urlFilters = $this->parseFilters($filters);
-
-        $response = function ($page) use ($urlFilters, $chunkSize) {
+        $response = function ($page) use ($filters, $chunkSize) {
+            $urlFilters = $this->parseFilters($filters);
             $urlFilters .= '&searchCriteria[pageSize]='. $chunkSize;
             $urlFilters .= '&searchCriteria[currentPage]=' . $page;
 
