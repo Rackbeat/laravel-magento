@@ -8,6 +8,7 @@
 
 namespace KgBot\Magento\Builders;
 
+use Generator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use KgBot\Magento\Exceptions\MagentoClientException;
@@ -73,8 +74,6 @@ class Builder
 		$items        = collect( [] );
 
 		foreach ( $fetchedItems as $index => $item ) {
-
-
 			/** @var Model $model */
 			$model = new $this->model( $this->request, $item );
 
@@ -85,7 +84,59 @@ class Builder
 		return $items;
 	}
 
-	public function find( $id ) {
+    /**
+     * It will iterate over all pages until it does not receive empty response, you can also set query parameters,
+     * Return a Generator that you' handle first before quering the next offset
+     *
+     * @param $filters
+     * @param int $chunkSize
+     *
+     * @return Generator
+     * @throws MagentoClientException
+     * @throws MagentoRequestException
+     */
+    public function allWithGenerator($filters, int $chunkSize = 50)
+    {
+        $page = 1;
+
+        $urlFilters = $this->parseFilters($filters);
+
+        $response = function ($page) use ($urlFilters, $chunkSize) {
+            $urlFilters .= '&searchCriteria[pageSize]='. $chunkSize;
+            $urlFilters .= '&searchCriteria[currentPage]=' . $page;
+
+            return $this->request->handleWithExceptions( function () use ( $urlFilters ) {
+
+                $response = $this->request->client->get( "{$this->entity}{$urlFilters}" );
+                $responseData = json_decode( (string) $response->getBody() );
+
+                return [
+                    'items' => $this->parseResponse( $responseData )
+                ];
+            });
+        };
+
+        do {
+            $resp = $response($page);
+
+            $countResults = count($resp->items);
+            if ($countResults === 0) {
+                break;
+            }
+            // make a generator of the results and return them
+            // so the logic will handle them before the next iteration
+            // in order to avoid memory leaks
+            foreach ($resp->items as $result) {
+                yield $result;
+            }
+
+            unset($resp);
+
+            $page++;
+        } while ($countResults === $chunkSize);
+    }
+
+    public function find( $id ) {
 		return $this->request->handleWithExceptions( function () use ( $id ) {
 
 			$response     = $this->request->client->get( "{$this->entity}/{$id}" );
