@@ -100,7 +100,7 @@ class Builder
                 $response = $this->request->client->get( "{$this->entity}{$urlFilters}" );
                 $responseData = json_decode( (string) $response->getBody() );
 
-                return [
+                return (object) [
                     'items' => $this->parseResponse( $responseData )
                 ];
             });
