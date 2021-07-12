@@ -2,7 +2,6 @@
 
 namespace KgBot\Magento\Builders;
 
-
 use KgBot\Magento\Exceptions\MagentoMethodNotImplementedException;
 use KgBot\Magento\Models\CustomerAddress;
 

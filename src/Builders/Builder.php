@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nts
- * Date: 31.3.18.
- * Time: 17.00
- */
 
 namespace KgBot\Magento\Builders;
 
@@ -15,7 +9,6 @@ use KgBot\Magento\Exceptions\MagentoClientException;
 use KgBot\Magento\Exceptions\MagentoRequestException;
 use KgBot\Magento\Utils\Model;
 use KgBot\Magento\Utils\Request;
-
 
 class Builder
 {
@@ -75,10 +68,9 @@ class Builder
 
 		foreach ( $fetchedItems as $index => $item ) {
 			/** @var Model $model */
-			$model = new $this->model( $this->request, $item );
+			$model = new $this->model( $item );
 
 			$items->push( $model );
-
 		}
 
 		return $items;
@@ -105,7 +97,6 @@ class Builder
             $urlFilters .= '&searchCriteria[currentPage]=' . $page;
 
             return $this->request->handleWithExceptions( function () use ( $urlFilters ) {
-
                 $response = $this->request->client->get( "{$this->entity}{$urlFilters}" );
                 $responseData = json_decode( (string) $response->getBody() );
 
@@ -137,11 +128,10 @@ class Builder
 
     public function find( $id ) {
 		return $this->request->handleWithExceptions( function () use ( $id ) {
-
 			$response     = $this->request->client->get( "{$this->entity}/{$id}" );
 			$responseData = json_decode( (string) $response->getBody() );
 
-			return new $this->model( $this->request, $responseData );
+			return new $this->model( $responseData );
 		} );
 	}
 
@@ -151,16 +141,39 @@ class Builder
 		];
 
 		return $this->request->handleWithExceptions( function () use ( $data ) {
-
 			$response = $this->request->client->post( "{$this->entity}", [
 				'json' => $data,
 			] );
 
 			$responseData = json_decode( (string) $response->getBody() );
 
-			return new $this->model( $this->request, $responseData );
+			return new $this->model( $responseData );
 		} );
 	}
+
+    public function update($id, $data = [])
+    {
+        $data = [
+            Str::singular( $this->entity ) => $data,
+        ];
+
+        return $this->request->handleWithExceptions( function () use ( $id, $data ) {
+            $response = $this->request->client->put( "{$this->entity}/" . urlencode( $id), [
+                'json' => $data,
+            ] );
+
+            $responseData = json_decode( (string) $response->getBody() );
+
+            return new $this->model( $responseData );
+        } );
+    }
+
+    public function delete($id)
+    {
+        return $this->request->handleWithExceptions( function () use ($id) {
+            return $this->request->client->delete( "{$this->entity}/" . urlencode( $id ) );
+        } );
+    }
 
 	public function getEntity() {
 		return $this->entity;

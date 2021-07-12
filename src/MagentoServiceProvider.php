@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nts
- * Date: 2.4.18.
- * Time: 01.02
- */
 
 namespace KgBot\Magento;
-
 
 use Illuminate\Support\ServiceProvider;
 

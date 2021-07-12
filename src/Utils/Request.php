@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nts
- * Date: 31.3.18.
- * Time: 16.53
- */
 
 namespace KgBot\Magento\Utils;
-
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -33,13 +26,11 @@ class Request
     {
         $token   = $token ?? config( 'laravel-magento.token' );
         $headers = array_merge( [
-
             'Accept'        => 'application/json',
             'Content-Type'  => 'application/json',
             'Authorization' => 'Bearer ' . $token,
         ], $headers );
         $options = array_merge( [
-
             'base_uri' => config( 'laravel-magento.base_uri' ),
             'headers'  => $headers,
         ], $options );
@@ -65,7 +56,6 @@ class Request
             $code    = $exception->getCode();
 
             if ( $exception->hasResponse() ) {
-
                 $message = (string) $exception->getResponse()->getBody();
                 $code    = $exception->getResponse()->getStatusCode();
             }
@@ -78,7 +68,6 @@ class Request
             $code    = $exception->getCode();
 
             if ( $exception->hasResponse() ) {
-
                 $message = (string) $exception->getResponse()->getBody();
                 $code    = $exception->getResponse()->getStatusCode();
             }

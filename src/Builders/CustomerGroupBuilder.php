@@ -21,7 +21,6 @@ class CustomerGroupBuilder extends Builder
         $urlFilters = $this->parseFilters( $filters );
 
         return $this->request->handleWithExceptions( function () use ( $urlFilters ) {
-
             $response     = $this->request->client->get( "{$this->entity}/search{$urlFilters}" );
             $responseData = json_decode( (string) $response->getBody() );
             $items        = $this->parseResponse( $responseData );
