@@ -62,9 +62,15 @@ class Builder
 		return $urlFilters;
 	}
 
-	protected function parseResponse( $response ) {
+	protected function parseResponse( $response ) 
+	{
+		$items = collect([]);
+
+        if (! isset($response->items)) {
+            return $items;
+        }
+
 		$fetchedItems = collect( $response->items );
-		$items        = collect( [] );
 
 		foreach ( $fetchedItems as $index => $item ) {
 			/** @var Model $model */
